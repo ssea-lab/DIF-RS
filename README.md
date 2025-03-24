@@ -2,7 +2,7 @@
 
 With the rapid advancement of mobile edge computing, more services are being deployed on edge servers to reduce service request latency. However, due to the limited resources of edge servers, simultaneous request arrivals often lead to task queuing, making efficient task scheduling a critical challenge. Existing heuristic-based methods perform well in scheduling problems but suffer from high computational overhead and a narrow optimization scope. To address these problems, we propose DIF-RS, a novel approach that leverages a graph-based diffusion model for multi-objective service request scheduling. DIF-RS models service requests as a graph structure with probabilistic vectors and achieves efficient inference through a few denoising steps. Extensive experiments on three real-world datasets demonstrate that DIF-RS outperforms state-of-the-art methods across multiple performance metrics. Moreover, DIF-RS achieves comparable or superior performance to heuristic algorithms while significantly reducing computational costs.
 
-![](images/motivation.png)
+![](images/DIF-RS.png)
 
 ## Main Results
 ![](images/results.png)
