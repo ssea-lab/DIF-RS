@@ -12,8 +12,6 @@ from pytorch_lightning.callbacks.progress import TQDMProgressBar
 from pytorch_lightning.loggers import WandbLogger
 from pytorch_lightning.strategies.ddp import DDPStrategy
 from pytorch_lightning.utilities import rank_zero_info
-from pl_tsp_model import TSPModel
-from pl_mis_model import MISModel
 from pl_edge_model import EDGEModel
 import sys
 from algorithms.rlpnet.config import Config
@@ -27,7 +25,7 @@ def arg_parser():
   parser.add_argument('--storage_path', type=str, default="/ssd_data/lzw/DIF-RS/")
   parser.add_argument('--training_split', type=str, default='data/train/SA/google_cluster_trace_50.txt')
   parser.add_argument('--training_split_label_dir', type=str, default=None,
-                      help="Directory containing labels for training split (used for MIS).")
+                      help="Directory containing labels for training split.")
   parser.add_argument('--validation_split', type=str, default='data/val/SA/google_cluster_trace_50.txt')
   parser.add_argument('--test_split', type=str, default='data/test/SA/google_cluster_trace_50.txt')
   parser.add_argument('--validation_examples', type=int, default=2) # max = 2500
@@ -73,8 +71,8 @@ def arg_parser():
   parser.add_argument('--resume_weight_only', action='store_true')
   # 为true时，不写--do_train为false
   parser.add_argument('--do_train', action='store_true')
-  parser.add_argument('--do_test', action='store_false')
-  parser.add_argument('--do_valid_only', action='store_true')
+  parser.add_argument('--do_test', action='store_true')
+  parser.add_argument('--do_test_only', action='store_true')
   parser.add_argument('--robustness_test', action='store_true')
   parser.add_argument('--robust_del_num', type=int, default=16)
   parser.add_argument('--algorithms_file_path', type=str, default='/ssd_data/lzw/DIF-RS/dif/algs')
@@ -109,8 +107,8 @@ def main(args):
     raise NotImplementedError
 
   model = model_class(param_args=args)
-  os.environ["WANDB_API_KEY"] ="de1b965e0307916f27eaa64cb81cdd85153d6020"
-  os.environ["WANDB_MODE"] = "offline"
+  os.environ["WANDB_API_KEY"] ="***********************"
+  # os.environ["WANDB_MODE"] = "offline"
 
   wandb_id = os.getenv("WANDB_RUN_ID") or wandb.util.generate_id()
   # export WANDB_RUN_ID=$(python -c "import wandb; print(wandb.util.generate_id())")
@@ -169,11 +167,8 @@ def main(args):
       trainer.fit(model, ckpt_path=None)
     if args.do_test:
       test_results = trainer.test(ckpt_path=checkpoint_callback.best_model_path)
-  elif args.do_test:
-    # trainer.validate(model, ckpt_path=ckpt_path)
-    if not args.do_valid_only:
-      test_results = trainer.test(model, ckpt_path=ckpt_path)
-  # elif args.robustness_test:
+  elif args.do_test_only:
+    test_results = trainer.test(model, ckpt_path=ckpt_path)
   if test_results:
     df = pd.DataFrame(test_results)
     df.to_csv(os.path.join(wandb_logger.save_dir,args.wandb_logger_name,f'samples_{args.parallel_sampling}--infer_step_{args.inference_diffusion_steps}.csv'), index=False)

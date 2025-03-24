@@ -1,5 +1,5 @@
 mysql:
-  host: 10.130.83.107
+  host: 
   user: root
   passwd: root
 
